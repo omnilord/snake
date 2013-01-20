@@ -1,0 +1,32 @@
+#main > table {
+  border-collapse: collapse;
+  border: 2px solid black;
+}
+
+#main > table > tbody > tr > td {
+  height: 10px;
+  width: 10px;
+  background-color: gray;
+  border: 1px solid black;
+  content: "&nbsp;";
+}
+
+
+#main > table > tbody > tr > td.apple {
+  background-color: red;
+  border: 1px solid black;
+  content: "&curren;";
+}
+
+
+#main > table > tbody > tr > td.worm {
+  background-color: orange;
+  border: 1px solid black;
+  content: "&nbsp;";
+}
+
+#main > table > tbody > tr > td.worm.head {
+  background-color: orange;
+  border: 1px solid black;
+  content: "&nbsp;";
+}
