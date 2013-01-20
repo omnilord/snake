@@ -8,11 +8,28 @@
 </head>
 <body>
   <div id="toolbar">
-   X: <input type="text" id="x_width" name="x_width" required="required" pattern="[2-9][0-9]{1}" value="30"> by 
-   Y: <input type="text" id="y_width" name="y_width" required="required" pattern="[2-9][0-9]{1}" value="30"> with
-   Apples: <input type="text" id="apples" name="apples" required="required" pattern="[2-9][0-9]{1}" value="5">
-   Speed: <select id="speed"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
-   <button id="create">Create Board</button> <button id="start">Start</button>
+   Grid Size: <select id="size">
+     <option value="1">Small</option>
+     <option value="2">Medium</option>
+     <option value="3">Large</option>
+     <option value="4">HUGE</option>
+   </select>
+   X: <input type="text" id="x_width" name="x_width" required="required" pattern="[2-9][0-9]{1}" value="20"> by 
+   Y: <input type="text" id="y_height" name="y_height" required="required" pattern="[2-9][0-9]{1}" value="20"> with
+   Apples per level: <input type="text" id="apples" name="apples" required="required" pattern="[2-9][0-9]{1}" value="5">
+   Current Level: <select id="level">
+     <option>1</option>
+     <option>2</option>
+     <option>3</option>
+     <option>4</option>
+     <option>5</option>
+     <option>6</option>
+     <option>7</option>
+     <option>8</option>
+     <option>9</option>
+     <option>10</option>
+   </select>
+   <button id="reset">Reset Board</button> <button id="start">Start</button>
   </div>
   <div id="main">
   </div>
