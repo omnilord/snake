@@ -1,5 +1,5 @@
 jQuery(function($) {
-  var heartbeat = undefined;
+  var heartbeat;
 
   var world = {
     "grid": undefined,
@@ -30,8 +30,8 @@ jQuery(function($) {
     },
     "removeApple": function(x, y) {
       this.cell(x, y).removeClass("apple");
-      if (this.grid.find("td.apple").length == 0) {
-        if (this.level == 10) {
+      if (this.grid.find("td.apple").length === 0) {
+        if (this.level === 10) {
           worm.die("You completed the 10th Level!  Congradulations!");
         } else {
           this.level = this.level + 1;
@@ -74,7 +74,7 @@ jQuery(function($) {
       }
 
       // either we are already heading the same direction, or we need to stop the worm from backtracking onto itself
-      if (Math.abs(coords[0]) == Math.abs(this.direction[0]) && Math.abs(coords[1]) == Math.abs(this.direction[1])) {
+      if (Math.abs(coords[0]) === Math.abs(this.direction[0]) && Math.abs(coords[1]) === Math.abs(this.direction[1])) {
         return;
       }
 
@@ -148,12 +148,12 @@ jQuery(function($) {
       clearTimeout(heartbeat);
       heartbeat = undefined;
     }
-  }
+  };
 
   // Control events below
 
   $("#reset").on("click", function(ev) {
-    if (heartbeat != undefined) {
+    if (typeof heartbeat != "undefined") {
       clearTimeout(heartbeat);
       heartbeat = undefined;
     }
@@ -214,7 +214,7 @@ jQuery(function($) {
       default: return;
     }
     worm.changeDirection(vector);
-    if (heartbeat == undefined) {
+    if (typeof heartbeat == "undefined") {
       world.level = $("#level").val();
       heartbeat = setTimeout(tick, (1000 / world.level));
     }
