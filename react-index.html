@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake via ReactJS</title>
+
+  <link href="main-style.css" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+  <script src="https://fb.me/react-with-addons-0.14.7.min.js"></script>
+  <script src="https://fb.me/react-dom-0.14.7.min.js"></script>
+  <script type="text/babel">
+
+$(function () {
+  var GRIDSIZE = 31;
+  var snake = null;
+  var heartbeat = null;
+
+  class Cell extends React.Component {
+    render() {
+      var cls = (this.props.apple && this.props.apple.x == this.props.x && this.props.apple.y == this.props.y)
+              ? 'apple'
+              : (this.props.worm.segments.filter(function (el) {
+                  return this.x == el.x && this.y == el.y;
+                }, this.props).length ? 'worm' : '');
+      return (
+        <td key={'cell-'+this.props.x+'x'+this.props.y} data-x={this.props.x} data-y={this.props.y} className={cls} />
+      );
+    }
+  }
+
+
+  class Row extends React.Component {
+    render() {
+      return (
+        <tr key={"row-"+this.props.row} data-y={this.props.row}>
+          {Array(this.props.cols).fill().map((val, col) => <Cell x={col} y={this.props.row} cls={this.props.cls} apple={this.props.apple} worm={this.props.worm} />)}
+        </tr>
+      );
+    }
+  }
+
+
+  class Board extends React.Component {
+    render() {
+      return (
+        <table>
+          {Array(GRIDSIZE).fill().map((val, row) => <Row row={row} cols={GRIDSIZE} cls="" apple={this.props.apple} worm={this.props.worm} />)}
+        </table>
+      );
+    }
+  }
+
+
+  class TopBar extends React.Component {
+    render() {
+      return (
+        <div id="top">
+          Welcome to Snake on ReactJS!
+          <span style={{ marginLeft: '10px', fontSize: '8px', display: this.props.active ? 'none' : 'inline' }}>
+            (Press an arrow key or a traditional gaming directional key (W, A, S, D) to start...)
+          </span>
+          <span style={{ marginLeft: '10px', display: this.props.active ? 'inline' : 'none' }}>
+            APPLES EATEN: {this.props.apples}
+          </span>
+        </div>
+      );
+    }
+  }
+
+
+  class Game extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        active: false,
+        worm: { vector: [0, 0], length: 3, segments: [{ x: Math.floor(GRIDSIZE / 2), y: Math.floor(GRIDSIZE / 2) }] },
+        apple: null,
+        board: Array(GRIDSIZE).fill().map((v, i) => ({ row: i, cols: Array(GRIDSIZE).fill().map((v, j) => ({ row: i, col: j })) }))
+      };
+    }
+
+    apple() {
+      var coords;
+      do {
+        coords = { x: Math.floor(Math.random() * GRIDSIZE), y: Math.floor(Math.random() * GRIDSIZE)};
+      } while (this.state.worm.segments.filter(function(el) { return coords.x == el.x && coords.y == el.y; }).length);
+      this.state.apple = coords;
+    }
+
+    go(vector) {
+      if (Math.abs(vector[0]) === Math.abs(this.state.worm.vector[0]) && Math.abs(vector[1]) === Math.abs(this.state.worm.vector[1])) {
+        return;
+      }
+      this.state.worm.vector = vector;
+      this.setState({ worm: this.state.worm });
+
+      if (!this.state.active) {
+        this.apple();
+        this.setState({ active: true, apple: this.state.apple });
+        heartbeat = setInterval(this.move.bind(this), 500);
+      }
+    }
+
+    move() {
+      var head = this.state.worm.segments[0],
+          next = { x: head.x + this.state.worm.vector[0], y: head.y + this.state.worm.vector[1] };
+
+      if (next.x < 0 || next.y < 0 || next.x >= GRIDSIZE || next.y >= GRIDSIZE
+          || this.state.worm.segments.filter(function(el) { return next.x == el.x && next.y == el.y; }).length) {
+        heartbeat = clearInterval(heartbeat);
+        alert('Game Over.');
+        this.setState(this.constructor());
+      } else {
+        if (next.x == this.state.apple.x && next.y == this.state.apple.y) {
+          //YAY!  Apple! Eat it.
+          this.state.worm.length++;
+          this.apple();
+        }
+        this.state.worm.segments.unshift(next);
+        if (this.state.worm.segments.length > this.state.worm.length) {
+          this.state.worm.segments.pop();
+        }
+        this.setState({ worm: this.state.worm, apple: this.state.apple });
+      }
+    }
+
+    componentDidMount() {
+      // This is to allow document keyboard events to make callbacks to the Game
+      snake = this;
+    }
+
+    render() {
+      return (
+        <div id="main" key="main">
+          <TopBar key="top" active={this.state.active} apples={this.state.worm.length - 3} />
+          <Board key="board" {...this.state} />
+        </div>
+      );
+    }
+  }
+
+  ReactDOM.render(<Game />, document.body);
+
+  $(document).on("keydown", function(ev) {
+    switch (ev.which) {
+      // Left-Arrow, A key
+      case 37: case 65: snake.go([-1, 0]); break;
+      // Up-Arrow, W key
+      case 38: case 87: snake.go([0, -1]); break;
+      // Right-Arrow, D key
+      case 39: case 68: snake.go([1, 0]); break;
+      // Down-Arrow, S key
+      case 40: case 83: snake.go([0, 1]); break;
+      default: return;
+    }
+  });
+});
+
+  </script>
+</head>
+<body>
+
+</body>
+</html>
+
