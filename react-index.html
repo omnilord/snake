@@ -12,9 +12,9 @@
   <script type="text/babel">
 
 $(function () {
-  var GRIDSIZE = 31;
-  var snake = null;
-  var heartbeat = null;
+  // Starting values, once Game is rendered, these values do nothing until the game restarts
+  var GRIDSIZE = 31,
+      heartrate = 500;
 
   class Cell extends React.Component {
     render() {
@@ -72,12 +72,29 @@ $(function () {
   class Game extends React.Component {
     constructor(props) {
       super(props);
-      this.state = {
+      this.state = this.getInitialState();
+    }
+
+    getInitialState() {
+      return {
         active: false,
         worm: { vector: [0, 0], length: 3, segments: [{ x: Math.floor(GRIDSIZE / 2), y: Math.floor(GRIDSIZE / 2) }] },
         apple: null,
-        board: Array(GRIDSIZE).fill().map((v, i) => ({ row: i, cols: Array(GRIDSIZE).fill().map((v, j) => ({ row: i, col: j })) }))
+        board: Array(GRIDSIZE).fill().map((v, i) => ({ row: i, cols: Array(GRIDSIZE).fill().map((v, j) => ({ row: i, col: j })) })),
+        heartrate: heartrate,
+        heartdelta: Math.ceil((heartrate - 15) / (GRIDSIZE * GRIDSIZE))
       };
+    }
+
+    reset() {
+      /*
+      var node = ReactDOM.findDOMNode(this);
+      if (node) {
+        ReactDOM.unmountComponentAtNode(node);
+        ReactDOM.render(<Game />, node);
+      }
+      */
+      this.setState(this.getInitialState());
     }
 
     apple() {
@@ -97,8 +114,11 @@ $(function () {
 
       if (!this.state.active) {
         this.apple();
-        this.setState({ active: true, apple: this.state.apple });
-        heartbeat = setInterval(this.move.bind(this), 500);
+        this.setState({
+          active: true,
+          apple: this.state.apple,
+          heartbeat: setTimeout(this.move.bind(this), this.state.heartrate)
+        });
       }
     }
 
@@ -108,12 +128,13 @@ $(function () {
 
       if (next.x < 0 || next.y < 0 || next.x >= GRIDSIZE || next.y >= GRIDSIZE
           || this.state.worm.segments.filter(function(el) { return next.x == el.x && next.y == el.y; }).length) {
-        heartbeat = clearInterval(heartbeat);
+        clearTimeout(this.state.heartbeat);
+        this.setState({ heartbeat: null });
         alert('Game Over.');
-        this.setState(this.constructor());
+        this.reset();
       } else {
         if (next.x == this.state.apple.x && next.y == this.state.apple.y) {
-          //YAY!  Apple! Eat it.
+          this.state.heartrate = Math.max(15, this.state.heartrate - this.state.heartdelta);
           this.state.worm.length++;
           this.apple();
         }
@@ -121,13 +142,37 @@ $(function () {
         if (this.state.worm.segments.length > this.state.worm.length) {
           this.state.worm.segments.pop();
         }
-        this.setState({ worm: this.state.worm, apple: this.state.apple });
+        this.setState({
+          worm: this.state.worm,
+          apple: this.state.apple,
+          heartrate: this.state.heartrate,
+          heartbeat: setTimeout(this.move.bind(this), this.state.heartrate)
+        });
       }
     }
 
     componentDidMount() {
-      // This is to allow document keyboard events to make callbacks to the Game
-      snake = this;
+      $(document).on("keydown", (ev) => {
+        switch (ev.which) {
+          // Left-Arrow, A key
+          case 37: case 65: this.go([-1, 0]); break;
+          // Up-Arrow, W key
+          case 38: case 87: this.go([0, -1]); break;
+          // Right-Arrow, D key
+          case 39: case 68: this.go([1, 0]); break;
+          // Down-Arrow, S key
+          case 40: case 83: this.go([0, 1]); break;
+          default: return;
+        }
+      });
+    }
+
+    componentWillUnmount() {
+      if (this.state.heartbeat) {
+        clearTimeout(this.state.heartbeat);
+      }
+        this.setState({ heartbeat: null });
+      $(document).off('keydown');
     }
 
     render() {
@@ -141,20 +186,6 @@ $(function () {
   }
 
   ReactDOM.render(<Game />, document.body);
-
-  $(document).on("keydown", function(ev) {
-    switch (ev.which) {
-      // Left-Arrow, A key
-      case 37: case 65: snake.go([-1, 0]); break;
-      // Up-Arrow, W key
-      case 38: case 87: snake.go([0, -1]); break;
-      // Right-Arrow, D key
-      case 39: case 68: snake.go([1, 0]); break;
-      // Down-Arrow, S key
-      case 40: case 83: snake.go([0, 1]); break;
-      default: return;
-    }
-  });
 });
 
   </script>
