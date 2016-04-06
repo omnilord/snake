@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Snake Snake</title>
+  <link type="text/css" rel="stylesheet" href="main-style.css"></link>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type-"text/javascript" src="jquery-snake.js"></script>
+  <style>
+#top > span {
+  margin-left: 10px;
+  display: none;
+}
+#top > span.active {
+  display: inline;
+}
+  </style>
+</head>
+<body>
+  <div id="top">
+    Welcome to Snake on jQuery!
+    <span class="active" style="font-size: 8px;">
+      (Press an arrow key or a traditional gaming directional key (W, A, S, D) to start...)
+    </span>
+    <span>
+      APPLES EATEN: <span id="eaten"></span>
+    </span>
+  </div>
+  <div id="main">
+  </div>
+</body>
+</html>
