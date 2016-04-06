@@ -1,7 +1,7 @@
 jQuery(function ($) {
   var heartbeat,
       reset,
-      GRIDSIZE = 31,
+      GRIDSIZE = 21,
       heartrate = 500,
       heartdelta = Math.ceil((heartrate - 15) / (GRIDSIZE * GRIDSIZE)),
 

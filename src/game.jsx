@@ -8,7 +8,7 @@ import TopBar from './topbar';
 import Board from './board';
 import $ from 'jquery';
 
-var GRIDSIZE = 31;
+var GRIDSIZE = 21;
 
 class Game extends React.Component {
   constructor(props) {
