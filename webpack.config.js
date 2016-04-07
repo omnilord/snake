@@ -12,10 +12,6 @@ module.exports = {
       exclude: /node_modules/,
       loader: 'babel',
       query: { presets: ['es2015', 'react'] }
-    },{
-      test: /\.sass?$/,
-      exclude: /node_modules/,
-      loader: 'sass',
     }]
   },
   plugins: [
