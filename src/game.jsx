@@ -8,7 +8,9 @@ import TopBar from './topbar';
 import Board from './board';
 import $ from 'jquery';
 
-var GRIDSIZE = 21;
+// Starting values, once Game is rendered, these values do nothing until the game restarts
+var GRIDSIZE = 21,
+    heartrate = 500;
 
 class Game extends React.Component {
   constructor(props) {
@@ -16,19 +18,24 @@ class Game extends React.Component {
     this.state = this.getInitialState();
   }
 
+
   getInitialState() {
     return {
       active: false,
       worm: { vector: [0, 0], length: 3, segments: [{ x: Math.floor(GRIDSIZE / 2), y: Math.floor(GRIDSIZE / 2) }] },
       apple: null,
       gridsize: GRIDSIZE,
-      board: Array(GRIDSIZE).fill().map((v, i) => ({ row: i, cols: Array(GRIDSIZE).fill().map((v, j) => ({ row: i, col: j })) }))
+      board: Array(GRIDSIZE).fill().map((v, i) => ({ row: i, cols: Array(GRIDSIZE).fill().map((v, j) => ({ row: i, col: j })) })),
+      heartrate: heartrate,
+      heartdelta: Math.ceil((heartrate - 15) / (GRIDSIZE * GRIDSIZE))
     }
   }
+
 
   reset() {
     this.setState(this.getInitialState());
   }
+
 
   apple() {
     var coords;
@@ -37,6 +44,7 @@ class Game extends React.Component {
     } while (this.state.worm.segments.filter(function(el) { return coords.x == el.x && coords.y == el.y; }).length);
     this.state.apple = coords;
   }
+
 
   go(vector) {
     if (Math.abs(vector[0]) === Math.abs(this.state.worm.vector[0]) && Math.abs(vector[1]) === Math.abs(this.state.worm.vector[1])) {
@@ -47,10 +55,14 @@ class Game extends React.Component {
 
     if (!this.state.active) {
       this.apple();
-      this.setState({ active: true, apple: this.state.apple });
-      heartbeat = setInterval(this.move.bind(this), 500);
+      this.setState({
+        active: true,
+        apple: this.state.apple,
+        heartbeat: setTimeout(this.move.bind(this), this.state.heartrate)
+      });
     }
   }
+
 
   move() {
     var head = this.state.worm.segments[0],
@@ -58,12 +70,13 @@ class Game extends React.Component {
 
     if (next.x < 0 || next.y < 0 || next.x >= GRIDSIZE || next.y >= GRIDSIZE
         || this.state.worm.segments.filter(function(el) { return next.x == el.x && next.y == el.y; }).length) {
-      heartbeat = clearInterval(heartbeat);
+      clearTimeout(this.state.heartbeat);
+      this.setState({ heartbeat: null });
       alert('Game Over.');
       this.reset();
     } else {
       if (next.x == this.state.apple.x && next.y == this.state.apple.y) {
-        //YAY!  Apple! Eat it.
+        this.state.heartrate = Math.max(15, this.state.heartrate - this.state.heartdelta);
         this.state.worm.length++;
         this.apple();
       }
@@ -71,9 +84,15 @@ class Game extends React.Component {
       if (this.state.worm.segments.length > this.state.worm.length) {
         this.state.worm.segments.pop();
       }
-      this.setState({ worm: this.state.worm, apple: this.state.apple });
+      this.setState({
+        worm: this.state.worm,
+        apple: this.state.apple,
+        heartrate: this.state.heartrate,
+        heartbeat: setTimeout(this.move.bind(this), this.state.heartrate)
+      });
     }
   }
+
 
   componentDidMount() {
     $(document).on("keydown", (ev) => {
@@ -91,9 +110,11 @@ class Game extends React.Component {
     });
   }
 
+
   componentWillUnmount() {
     $(document).off('keydown');
   }
+
 
   render() {
     return (
